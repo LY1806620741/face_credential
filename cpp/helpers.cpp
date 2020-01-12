@@ -17,6 +17,10 @@
 // Copies the field descriptor pointed to by rcpfd into a buffer allocated
 // using CoTaskMemAlloc. Returns that buffer in ppcpfd.
 //
+//
+//将rcpfd指向的字段描述符复制到分配的缓冲区中
+//使用CoTaskMemAlloc。返回ppcpfd中的缓冲区。
+//
 HRESULT FieldDescriptorCoAllocCopy(
     _In_ const CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR &rcpfd,
     _Outptr_result_nullonfailure_ CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR **ppcpfd
@@ -65,6 +69,11 @@ HRESULT FieldDescriptorCoAllocCopy(
 // allocating pcpfd. This function uses CoTaskMemAlloc to allocate memory for
 // pcpfd->pszLabel.
 //
+//
+//铜片将rcpfd放入pcpfd所指的缓冲区。来电者负责
+//正在分配pcpfd。此函数使用CoTaskMemAlloc为
+//pcpfd->pszLabel。
+//
 HRESULT FieldDescriptorCopy(
     _In_ const CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR &rcpfd,
     _Out_ CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR *pcpfd
@@ -101,6 +110,13 @@ HRESULT FieldDescriptorCopy(
 // Note that this function just makes a copy of the string pointer. It DOES NOT ALLOCATE storage!
 // Be very, very sure that this is what you want, because it probably isn't outside of the
 // exact GetSerialization call where the sample uses it.
+//
+//
+//此函数将pwz的长度和指针pwz复制到UNICODE字符串结构中
+//此函数仅用于在GetSerialization中序列化凭据。
+//请注意，此函数只是字符串指针的副本。它不分配存储空间！
+//非常非常确定这是你想要的，因为它可能不在
+//样本使用它的确切GetSerialization调用。
 //
 HRESULT UnicodeStringInitWithString(
     _In_ PWSTR pwz,
@@ -147,6 +163,13 @@ HRESULT UnicodeStringInitWithString(
 // You can read more about the UNICODE_STRING type at:
 // http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/unicode_string.asp
 //
+//
+//以下功能仅用于路缘*组件功能。是的
+//无边界检查，因为它的调用方有精确的要求，并且是为了尊重
+//它的局限性。
+//有关UNICODE字符串类型的详细信息，请访问：
+// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/unicode_string.asp
+//
 static void _UnicodeStringPackedUnicodeStringCopy(
     __in const UNICODE_STRING& rus,
     __in PWSTR pwzBuffer,
@@ -168,6 +191,15 @@ static void _UnicodeStringPackedUnicodeStringCopy(
 // The password is stored in encrypted form for CPUS_LOGON and CPUS_UNLOCK_WORKSTATION
 // because the system can accept encrypted credentials.  It is not encrypted in CPUS_CREDUI
 // because we cannot know whether our caller can accept encrypted credentials.
+//
+//
+//用弱引用初始化KERB_INTERACTIVE_UNLOCK_登录的成员
+//以字符串形式传递。如果以后使用KerbInteractiveUnlockLogonPack，这将非常有用
+//序列化结构。
+//
+//密码以加密的形式存储，以便CPU登录和CPU解锁工作站
+//因为系统可以接受加密的凭据。它在CPU密码中没有加密
+//因为我们不知道调用方是否可以接受加密凭据。
 //
 HRESULT KerbInteractiveUnlockLogonInit(
     _In_ PWSTR pwzDomain,
@@ -195,6 +227,19 @@ HRESULT KerbInteractiveUnlockLogonInit(
     // is not officially documented.
 
     // Initialize the UNICODE_STRINGS to share our username and password strings.
+	//注意：此方法使用自定义逻辑将KERB_INTERACTIVE_UNLOCK_登录与
+	//序列化凭据。我们可以用字符串替换对unicodestingnit的调用
+	//以及KerbInteractiveUnlockLogonPack，其中包含一个cal-to-CredPackAuthenticationBuffer，
+	//但是这个API有一个缺点：它返回一个KERB_INTERACTIVE_UNLOCK_登录
+	//消息类型始终是KerbInteractiveLogon。
+	//
+	//如果我们只处理CPU登录，这个缺点就不是问题。为了
+	//CPU_UNLOCK_工作站，我们可以转换CredPackAuthenticationBuffer的输出缓冲区
+	//若要解除KERB_INTERACTIVE_UNLOCK_登录并将消息类型修改为KerbWorkstationUnlockLogon，
+	//但这种转换是不受支持的——CredPackAuthenticationBuffer的输出格式
+	//没有正式文件。
+
+	//初始化UNICODE_字符串以共享用户名和密码字符串。
     HRESULT hr = UnicodeStringInitWithString(pwzDomain, &pkil->LogonDomainName);
     if (SUCCEEDED(hr))
     {

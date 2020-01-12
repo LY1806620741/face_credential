@@ -53,6 +53,8 @@ CSampleCredential::~CSampleCredential()
 
 // Initializes one credential with the field information passed in.
 // Set the value of the SFI_LARGE_TEXT field to pwzUsername.
+//使用传入的字段信息初始化一个凭据。
+//将SFI_LARGE_文本字段的值设置为pwzUsername。
 HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
                                       _In_ CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR const *rgcpfd,
                                       _In_ FIELD_STATE_PAIR const *rgfsp,
@@ -67,6 +69,8 @@ HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
 
     // Copy the field descriptors for each field. This is useful if you want to vary the field
     // descriptors based on what Usage scenario the credential was created for.
+	//复制每个字段的字段描述符。如果要改变字段，这很有用
+    //基于为哪个使用场景创建凭据的描述符。
     for (DWORD i = 0; SUCCEEDED(hr) && i < ARRAYSIZE(_rgCredProvFieldDescriptors); i++)
     {
         _rgFieldStatePairs[i] = rgfsp[i];
@@ -74,6 +78,7 @@ HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
     }
 
     // Initialize the String value of all the fields.
+	//初始化所有字段的字符串值。
     if (SUCCEEDED(hr))
     {
         hr = SHStrDupW(L"Sample Credential", &_rgFieldStrings[SFI_LABEL]);
@@ -172,6 +177,7 @@ HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
 }
 
 // LogonUI calls this in order to give us a callback in case we need to notify it of anything.
+// LogonUI调用这个函数是为了给我们一个回调，以防我们需要通知它任何事情。
 HRESULT CSampleCredential::Advise(_In_ ICredentialProviderCredentialEvents *pcpce)
 {
     if (_pCredProvCredentialEvents != nullptr)
@@ -182,6 +188,7 @@ HRESULT CSampleCredential::Advise(_In_ ICredentialProviderCredentialEvents *pcpc
 }
 
 // LogonUI calls this to tell us to release the callback.
+// LogonUI打这个电话告诉我们释放回调。
 HRESULT CSampleCredential::UnAdvise()
 {
     if (_pCredProvCredentialEvents)
@@ -198,6 +205,12 @@ HRESULT CSampleCredential::UnAdvise()
 // field definitions. But if you want to do something
 // more complicated, like change the contents of a field when the tile is
 // selected, you would do it here.
+//当我们的磁贴被选中（缩放）时，LogonUI调用此函数
+//如果只想根据选定的状态显示/隐藏字段，
+//这里不需要做任何事-你可以在
+//字段定义。但如果你想做点什么
+//更复杂的是，比如在
+//选中后，您可以在此处执行此操作。
 HRESULT CSampleCredential::SetSelected(_Out_ BOOL *pbAutoLogon)
 {
     *pbAutoLogon = FALSE;
@@ -207,6 +220,9 @@ HRESULT CSampleCredential::SetSelected(_Out_ BOOL *pbAutoLogon)
 // Similarly to SetSelected, LogonUI calls this when your tile was selected
 // and now no longer is. The most common thing to do here (which we do below)
 // is to clear out the password field.
+//与SetSelected类似，LogonUI在选择磁贴时调用此函数
+//现在不再是了。这里最常见的事情（我们在下面做）
+//是清除密码字段。
 HRESULT CSampleCredential::SetDeselected()
 {
     HRESULT hr = S_OK;
@@ -229,6 +245,8 @@ HRESULT CSampleCredential::SetDeselected()
 
 // Get info for a particular field of a tile. Called by logonUI to get information
 // to display the tile.
+//获取磁贴特定字段的信息。logonUI打电话来获取信息
+//以显示磁贴。
 HRESULT CSampleCredential::GetFieldState(DWORD dwFieldID,
                                          _Out_ CREDENTIAL_PROVIDER_FIELD_STATE *pcpfs,
                                          _Out_ CREDENTIAL_PROVIDER_FIELD_INTERACTIVE_STATE *pcpfis)
@@ -250,16 +268,20 @@ HRESULT CSampleCredential::GetFieldState(DWORD dwFieldID,
 }
 
 // Sets ppwsz to the string value of the field at the index dwFieldID
+//将ppwsz设置为索引dwFieldID处字段的字符串值
 HRESULT CSampleCredential::GetStringValue(DWORD dwFieldID, _Outptr_result_nullonfailure_ PWSTR *ppwsz)
 {
     HRESULT hr;
     *ppwsz = nullptr;
 
     // Check to make sure dwFieldID is a legitimate index
+	//检查以确保dwFieldID是合法的索引
     if (dwFieldID < ARRAYSIZE(_rgCredProvFieldDescriptors))
     {
         // Make a copy of the string and return that. The caller
         // is responsible for freeing it.
+		//复制字符串并返回。打电话的人
+        //负责释放它。
         hr = SHStrDupW(_rgFieldStrings[dwFieldID], ppwsz);
     }
     else
@@ -271,6 +293,7 @@ HRESULT CSampleCredential::GetStringValue(DWORD dwFieldID, _Outptr_result_nullon
 }
 
 // Get the image to show in the user tile
+//获取要在用户磁贴中显示的图像
 HRESULT CSampleCredential::GetBitmapValue(DWORD dwFieldID, _Outptr_result_nullonfailure_ HBITMAP *phbmp)
 {
     HRESULT hr;
@@ -301,6 +324,10 @@ HRESULT CSampleCredential::GetBitmapValue(DWORD dwFieldID, _Outptr_result_nullon
 // adjacent to. We recommend that the submit button is placed next to the last
 // field which the user is required to enter information in. Optional fields
 // should be below the submit button.
+//将pdwAdjacentTo设置为submit按钮应为的字段的索引
+//邻近。我们建议将submit按钮放在最后一个按钮的旁边
+//用户需要在其中输入信息的字段。可选字段
+//应该在submit按钮下面。
 HRESULT CSampleCredential::GetSubmitButtonValue(DWORD dwFieldID, _Out_ DWORD *pdwAdjacentTo)
 {
     HRESULT hr;
@@ -309,6 +336,8 @@ HRESULT CSampleCredential::GetSubmitButtonValue(DWORD dwFieldID, _Out_ DWORD *pd
     {
         // pdwAdjacentTo is a pointer to the fieldID you want the submit button to
         // appear next to.
+		//pdwAdjacentTo是指向您希望submit按钮指向的fieldID的指针
+		//出现在旁边。
         *pdwAdjacentTo = SFI_PASSWORD;
         hr = S_OK;
     }
@@ -321,6 +350,8 @@ HRESULT CSampleCredential::GetSubmitButtonValue(DWORD dwFieldID, _Out_ DWORD *pd
 
 // Sets the value of a field which can accept a string as a value.
 // This is called on each keystroke when a user types into an edit field
+//设置可以接受字符串作为值的字段的值。
+//当用户键入编辑字段时，每次击键都会调用此函数
 HRESULT CSampleCredential::SetStringValue(DWORD dwFieldID, _In_ PCWSTR pwz)
 {
     HRESULT hr;
@@ -343,6 +374,7 @@ HRESULT CSampleCredential::SetStringValue(DWORD dwFieldID, _In_ PCWSTR pwz)
 }
 
 // Returns whether a checkbox is checked or not as well as its label.
+//返回复选框及其标签是否被选中。
 HRESULT CSampleCredential::GetCheckboxValue(DWORD dwFieldID, _Out_ BOOL *pbChecked, _Outptr_result_nullonfailure_ PWSTR *ppwszLabel)
 {
     HRESULT hr;
@@ -364,6 +396,7 @@ HRESULT CSampleCredential::GetCheckboxValue(DWORD dwFieldID, _Out_ BOOL *pbCheck
 }
 
 // Sets whether the specified checkbox is checked or not.
+//设置是否选中指定的复选框。
 HRESULT CSampleCredential::SetCheckboxValue(DWORD dwFieldID, BOOL bChecked)
 {
     HRESULT hr;
@@ -385,6 +418,8 @@ HRESULT CSampleCredential::SetCheckboxValue(DWORD dwFieldID, BOOL bChecked)
 
 // Returns the number of items to be included in the combobox (pcItems), as well as the
 // currently selected item (pdwSelectedItem).
+//返回要包含在组合框（pcItems）中的项目数，以及
+//当前选定的项（pdwSelectedItem）。
 HRESULT CSampleCredential::GetComboBoxValueCount(DWORD dwFieldID, _Out_ DWORD *pcItems, _Deref_out_range_(<, *pcItems) _Out_ DWORD *pdwSelectedItem)
 {
     HRESULT hr;
@@ -408,6 +443,7 @@ HRESULT CSampleCredential::GetComboBoxValueCount(DWORD dwFieldID, _Out_ DWORD *p
 }
 
 // Called iteratively to fill the combobox with the string (ppwszItem) at index dwItem.
+//迭代调用以在索引dwItem处用字符串（ppwszItem）填充组合框。
 HRESULT CSampleCredential::GetComboBoxValueAt(DWORD dwFieldID, DWORD dwItem, _Outptr_result_nullonfailure_ PWSTR *ppwszItem)
 {
     HRESULT hr;
@@ -428,6 +464,7 @@ HRESULT CSampleCredential::GetComboBoxValueAt(DWORD dwFieldID, DWORD dwItem, _Ou
 }
 
 // Called when the user changes the selected item in the combobox.
+//当用户更改组合框中的选定项时调用。
 HRESULT CSampleCredential::SetComboBoxSelectedValue(DWORD dwFieldID, DWORD dwSelectedItem)
 {
     HRESULT hr;
@@ -448,6 +485,7 @@ HRESULT CSampleCredential::SetComboBoxSelectedValue(DWORD dwFieldID, DWORD dwSel
 }
 
 // Called when the user clicks a command link.
+//当用户单击命令链接时调用。
 HRESULT CSampleCredential::CommandLinkClicked(DWORD dwFieldID)
 {
     HRESULT hr = S_OK;
@@ -499,6 +537,9 @@ HRESULT CSampleCredential::CommandLinkClicked(DWORD dwFieldID)
 // Collect the username and password into a serialized credential for the correct usage scenario
 // (logon/unlock is what's demonstrated in this sample).  LogonUI then passes these credentials
 // back to the system to log on.
+//将用户名和密码收集到序列化凭据中，以获得正确的使用方案
+//（登录/解锁是本示例中演示的内容）。LogonUI然后传递这些凭证
+//返回系统登录。
 HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE *pcpgsr,
                                             _Out_ CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION *pcpcs,
                                             _Outptr_result_maybenull_ PWSTR *ppwszOptionalStatusText,
@@ -512,6 +553,8 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
 
     // For local user, the domain and user name can be split from _pszQualifiedUserName (domain\username).
     // CredPackAuthenticationBuffer() cannot be used because it won't work with unlock scenario.
+	//对于本地用户，域名和用户名可以从pszQualifiedUserName（domain\user name）中分离出来。
+    //无法使用CredPackAuthenticationBuffer（），因为它不适用于解锁方案。
     if (_fIsLocalUser)
     {
         PWSTR pwzProtectedPassword;
@@ -530,6 +573,9 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
                     // We use KERB_INTERACTIVE_UNLOCK_LOGON in both unlock and logon scenarios.  It contains a
                     // KERB_INTERACTIVE_LOGON to hold the creds plus a LUID that is filled in for us by Winlogon
                     // as necessary.
+					//我们在解锁和登录场景中都使用KERB_INTERACTIVE_UNLOCK_登录。它包含一个
+					//KERB_INTERACTIVE_LOGON保存creds和Winlogon为我们填写的LUID
+					//必要时。
                     hr = KerbInteractiveUnlockLogonPack(kiul, &pcpcs->rgbSerialization, &pcpcs->cbSerialization);
                     if (SUCCEEDED(hr))
                     {
@@ -543,6 +589,10 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
                             // By setting this to CPGSR_RETURN_CREDENTIAL_FINISHED we are letting logonUI know
                             // that we have all the information we need and it should attempt to submit the
                             // serialized credential.
+							//此时，凭据已创建用于登录的序列化凭据
+							//通过将此设置为CPGSR_RETURN_CREDENTIAL_FINISHED，我们将让logonUI知道
+							//我们有我们需要的所有信息，它应该尝试提交
+							//序列化凭据。
                             *pcpgsr = CPGSR_RETURN_CREDENTIAL_FINISHED;
                         }
                     }
@@ -558,6 +608,7 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
         DWORD dwAuthFlags = CRED_PACK_PROTECTED_CREDENTIALS | CRED_PACK_ID_PROVIDER_CREDENTIALS;
 
         // First get the size of the authentication buffer to allocate
+		//首先获取要分配的身份验证缓冲区的大小
         if (!CredPackAuthenticationBuffer(dwAuthFlags, _pszQualifiedUserName, const_cast<PWSTR>(_rgFieldStrings[SFI_PASSWORD]), nullptr, &pcpcs->cbSerialization) &&
             (GetLastError() == ERROR_INSUFFICIENT_BUFFER))
         {
@@ -567,6 +618,7 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
                 hr = S_OK;
 
                 // Retrieve the authentication buffer
+				//检索身份验证缓冲区
                 if (CredPackAuthenticationBuffer(dwAuthFlags, _pszQualifiedUserName, const_cast<PWSTR>(_rgFieldStrings[SFI_PASSWORD]), pcpcs->rgbSerialization, &pcpcs->cbSerialization))
                 {
                     ULONG ulAuthPackage;
@@ -580,6 +632,10 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
                         // By setting this to CPGSR_RETURN_CREDENTIAL_FINISHED we are letting logonUI know
                         // that we have all the information we need and it should attempt to submit the
                         // serialized credential.
+						//此时，凭据已创建用于登录的序列化凭据
+						//通过将此设置为CPGSR_RETURN_CREDENTIAL_FINISHED，我们将让logonUI知道
+						//我们有我们需要的所有信息，它应该尝试提交
+						//序列化凭据。
                         *pcpgsr = CPGSR_RETURN_CREDENTIAL_FINISHED;
                     }
                 }
@@ -624,6 +680,10 @@ static const REPORT_RESULT_STATUS_INFO s_rgLogonStatusInfo[] =
 // and the icon displayed in the case of a logon failure.  For example, we have chosen to
 // customize the error shown in the case of bad username/password and in the case of the account
 // being disabled.
+//ReportResult是完全可选的。其目的是允许凭据自定义字符串
+//以及登录失败时显示的图标。例如，我们选择
+//自定义用户名/密码错误和帐户错误时显示的错误
+//正在被禁用。
 HRESULT CSampleCredential::ReportResult(NTSTATUS ntsStatus,
                                         NTSTATUS ntsSubstatus,
                                         _Outptr_result_maybenull_ PWSTR *ppwszOptionalStatusText,
@@ -635,6 +695,7 @@ HRESULT CSampleCredential::ReportResult(NTSTATUS ntsStatus,
     DWORD dwStatusInfo = (DWORD)-1;
 
     // Look for a match on status and substatus.
+	//查找状态和子状态的匹配项。
     for (DWORD i = 0; i < ARRAYSIZE(s_rgLogonStatusInfo); i++)
     {
         if (s_rgLogonStatusInfo[i].ntsStatus == ntsStatus && s_rgLogonStatusInfo[i].ntsSubstatus == ntsSubstatus)
@@ -653,6 +714,7 @@ HRESULT CSampleCredential::ReportResult(NTSTATUS ntsStatus,
     }
 
     // If we failed the logon, try to erase the password field.
+	//如果登录失败，请尝试删除密码字段。
     if (FAILED(HRESULT_FROM_NT(ntsStatus)))
     {
         if (_pCredProvCredentialEvents)
@@ -663,10 +725,13 @@ HRESULT CSampleCredential::ReportResult(NTSTATUS ntsStatus,
 
     // Since nullptr is a valid value for *ppwszOptionalStatusText and *pcpsiOptionalStatusIcon
     // this function can't fail.
+	//因为nullptr是*ppwszOptionalStatusText和*pcpsiOptionalStatusIcon的有效值
+    //此函数无法存档。
     return S_OK;
 }
 
 // Gets the SID of the user corresponding to the credential.
+//获取与凭据对应的用户的SID。
 HRESULT CSampleCredential::GetUserSid(_Outptr_result_nullonfailure_ PWSTR *ppszSid)
 {
     *ppszSid = nullptr;
@@ -677,11 +742,14 @@ HRESULT CSampleCredential::GetUserSid(_Outptr_result_nullonfailure_ PWSTR *ppszS
     }
     // Return S_FALSE with a null SID in ppszSid for the
     // credential to be associated with an empty user tile.
+	//在ppszSid中为
+	//与空用户磁贴关联的凭据。
 
     return hr;
 }
 
 // GetFieldOptions to enable the password reveal button and touch keyboard auto-invoke in the password field.
+//GetFieldOptions以启用密码显示按钮并在密码字段中触摸键盘自动调用。
 HRESULT CSampleCredential::GetFieldOptions(DWORD dwFieldID,
                                            _Out_ CREDENTIAL_PROVIDER_CREDENTIAL_FIELD_OPTIONS *pcpcfo)
 {

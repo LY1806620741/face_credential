@@ -8,6 +8,8 @@
 //
 // Helper functions for copying parameters and packaging the buffer
 // for GetSerialization.
+//用于复制参数和打包缓冲区的帮助函数
+//用于GetSerialization。
 
 #pragma once
 

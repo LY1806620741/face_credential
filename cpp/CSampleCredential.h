@@ -11,7 +11,22 @@
 // provider specify what a user tile looks like and then tell it what the
 // user has entered into the tile.  ICredentialProviderCredential is also
 // responsible for packaging up the users credentials into a buffer that
-// LogonUI then sends on to LSA.
+// LogonUI then sends on to LSA
+//
+
+//此代码和信息按“原样”提供，不保证
+//任何种类，明示或暗示的，包括但不限于
+//适销性和/或适用性的默示保证
+// 特殊用途。
+//
+//版权所有（c）Microsoft Corporation。保留所有权利。
+//
+//CSampleCredential是我们对ICredentialProviderCredential的实现。
+//ICredentialProviderCredential是LogonUI用来让凭据
+//提供程序指定用户磁贴的外观，然后告诉它
+//用户已进入互动程序。ICredentialProviderCredential也是
+//负责将用户凭据打包到一个缓冲区中
+//LogonUI然后发送到LSA。.
 
 #pragma once
 
@@ -118,3 +133,15 @@ public:
     bool                                    _fShowControls;                                 // Tracks the state of our show/hide controls link.
     bool                                    _fIsLocalUser;                                  // If the cred prov is assosiating with a local user tile
 };
+//保存磁贴中每个字段的类型和名称的数组。
+//保存磁贴中每个字段状态的数组。
+//保存每个字段的字符串值的数组。这与rgCredProvFieldDescriptors中保存的字段的名称不同。
+
+
+//用于打包身份验证缓冲区的用户名
+//用于更新字段。
+//Begin和EndFieldUpdates的CredentialEvents2。
+//跟踪复选框的状态。
+//跟踪组合框的当前索引。
+//跟踪显示/隐藏控件链接的状态。
+//如果cred prov与本地用户磁贴关联
