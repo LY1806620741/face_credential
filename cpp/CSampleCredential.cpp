@@ -1,13 +1,3 @@
-//
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
-// Copyright (c) Microsoft Corporation. All rights reserved.
-//
-//
-
 #ifndef WIN32_NO_STATUS
 #include <ntstatus.h>
 #define WIN32_NO_STATUS
@@ -16,15 +6,14 @@
 #include "CSampleCredential.h"
 #include "guid.h"
 
+//构造函数
 CSampleCredential::CSampleCredential():
     _cRef(1),
     _pCredProvCredentialEvents(nullptr),
     _pszUserSid(nullptr),
     _pszQualifiedUserName(nullptr),
     _fIsLocalUser(false),
-    _fChecked(false),
-    _fShowControls(false),
-    _dwComboIndex(0)
+    _fShowControls(true)
 {
     DllAddRef();
 
@@ -33,6 +22,7 @@ CSampleCredential::CSampleCredential():
     ZeroMemory(_rgFieldStrings, sizeof(_rgFieldStrings));
 }
 
+//析构函数
 CSampleCredential::~CSampleCredential()
 {
     if (_rgFieldStrings[SFI_PASSWORD])
@@ -81,15 +71,11 @@ HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
 	//初始化所有字段的字符串值。
     if (SUCCEEDED(hr))
     {
-        hr = SHStrDupW(L"Sample Credential", &_rgFieldStrings[SFI_LABEL]);
+        hr = SHStrDupW(L"人脸识别凭据", &_rgFieldStrings[SFI_LABEL]);
     }
     if (SUCCEEDED(hr))
     {
-        hr = SHStrDupW(L"Sample Credential Provider", &_rgFieldStrings[SFI_LARGE_TEXT]);
-    }
-    if (SUCCEEDED(hr))
-    {
-        hr = SHStrDupW(L"Edit Text", &_rgFieldStrings[SFI_EDIT_TEXT]);
+        hr = SHStrDupW(L"人脸识别凭据提供者", &_rgFieldStrings[SFI_LARGE_TEXT]);
     }
     if (SUCCEEDED(hr))
     {
@@ -97,23 +83,15 @@ HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
     }
     if (SUCCEEDED(hr))
     {
-        hr = SHStrDupW(L"Submit", &_rgFieldStrings[SFI_SUBMIT_BUTTON]);
+        hr = SHStrDupW(L"提交", &_rgFieldStrings[SFI_SUBMIT_BUTTON]);
     }
     if (SUCCEEDED(hr))
     {
-        hr = SHStrDupW(L"Checkbox", &_rgFieldStrings[SFI_CHECKBOX]);
+        hr = SHStrDupW(L"启动帮助程序窗口", &_rgFieldStrings[SFI_LAUNCHWINDOW_LINK]);
     }
     if (SUCCEEDED(hr))
     {
-        hr = SHStrDupW(L"Combobox", &_rgFieldStrings[SFI_COMBOBOX]);
-    }
-    if (SUCCEEDED(hr))
-    {
-        hr = SHStrDupW(L"Launch helper window", &_rgFieldStrings[SFI_LAUNCHWINDOW_LINK]);
-    }
-    if (SUCCEEDED(hr))
-    {
-        hr = SHStrDupW(L"Hide additional controls", &_rgFieldStrings[SFI_HIDECONTROLS_LINK]);
+        hr = SHStrDupW(L"显示其他控制器", &_rgFieldStrings[SFI_HIDECONTROLS_LINK]);
     }
     if (SUCCEEDED(hr))
     {
@@ -126,13 +104,13 @@ HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
         if (pszUserName != nullptr)
         {
             wchar_t szString[256];
-            StringCchPrintf(szString, ARRAYSIZE(szString), L"User Name: %s", pszUserName);
+            StringCchPrintf(szString, ARRAYSIZE(szString), L"用户名: %s", pszUserName);
             hr = SHStrDupW(szString, &_rgFieldStrings[SFI_FULLNAME_TEXT]);
             CoTaskMemFree(pszUserName);
         }
         else
         {
-            hr =  SHStrDupW(L"User Name is NULL", &_rgFieldStrings[SFI_FULLNAME_TEXT]);
+            hr =  SHStrDupW(L"用户名为空", &_rgFieldStrings[SFI_FULLNAME_TEXT]);
         }
     }
     if (SUCCEEDED(hr))
@@ -142,13 +120,13 @@ HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
         if (pszDisplayName != nullptr)
         {
             wchar_t szString[256];
-            StringCchPrintf(szString, ARRAYSIZE(szString), L"Display Name: %s", pszDisplayName);
+            StringCchPrintf(szString, ARRAYSIZE(szString), L"显示名: %s", pszDisplayName);
             hr = SHStrDupW(szString, &_rgFieldStrings[SFI_DISPLAYNAME_TEXT]);
             CoTaskMemFree(pszDisplayName);
         }
         else
         {
-            hr = SHStrDupW(L"Display Name is NULL", &_rgFieldStrings[SFI_DISPLAYNAME_TEXT]);
+            hr = SHStrDupW(L"显示名为空", &_rgFieldStrings[SFI_DISPLAYNAME_TEXT]);
         }
     }
     if (SUCCEEDED(hr))
@@ -158,13 +136,13 @@ HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
         if (pszLogonStatus != nullptr)
         {
             wchar_t szString[256];
-            StringCchPrintf(szString, ARRAYSIZE(szString), L"Logon Status: %s", pszLogonStatus);
+            StringCchPrintf(szString, ARRAYSIZE(szString), L"登录状态: %s", pszLogonStatus);
             hr = SHStrDupW(szString, &_rgFieldStrings[SFI_LOGONSTATUS_TEXT]);
             CoTaskMemFree(pszLogonStatus);
         }
         else
         {
-            hr = SHStrDupW(L"Logon Status is NULL", &_rgFieldStrings[SFI_LOGONSTATUS_TEXT]);
+            hr = SHStrDupW(L"登录状态为空", &_rgFieldStrings[SFI_LOGONSTATUS_TEXT]);
         }
     }
 
@@ -377,43 +355,14 @@ HRESULT CSampleCredential::SetStringValue(DWORD dwFieldID, _In_ PCWSTR pwz)
 //返回复选框及其标签是否被选中。
 HRESULT CSampleCredential::GetCheckboxValue(DWORD dwFieldID, _Out_ BOOL *pbChecked, _Outptr_result_nullonfailure_ PWSTR *ppwszLabel)
 {
-    HRESULT hr;
-    *ppwszLabel = nullptr;
-
-    // Validate parameters.
-    if (dwFieldID < ARRAYSIZE(_rgCredProvFieldDescriptors) &&
-        (CPFT_CHECKBOX == _rgCredProvFieldDescriptors[dwFieldID].cpft))
-    {
-        *pbChecked = _fChecked;
-        hr = SHStrDupW(_rgFieldStrings[SFI_CHECKBOX], ppwszLabel);
-    }
-    else
-    {
-        hr = E_INVALIDARG;
-    }
-
-    return hr;
+    return NULL;
 }
 
 // Sets whether the specified checkbox is checked or not.
 //设置是否选中指定的复选框。
 HRESULT CSampleCredential::SetCheckboxValue(DWORD dwFieldID, BOOL bChecked)
 {
-    HRESULT hr;
-
-    // Validate parameters.
-    if (dwFieldID < ARRAYSIZE(_rgCredProvFieldDescriptors) &&
-        (CPFT_CHECKBOX == _rgCredProvFieldDescriptors[dwFieldID].cpft))
-    {
-        _fChecked = bChecked;
-        hr = S_OK;
-    }
-    else
-    {
-        hr = E_INVALIDARG;
-    }
-
-    return hr;
+    return NULL;
 }
 
 // Returns the number of items to be included in the combobox (pcItems), as well as the
@@ -422,66 +371,21 @@ HRESULT CSampleCredential::SetCheckboxValue(DWORD dwFieldID, BOOL bChecked)
 //当前选定的项（pdwSelectedItem）。
 HRESULT CSampleCredential::GetComboBoxValueCount(DWORD dwFieldID, _Out_ DWORD *pcItems, _Deref_out_range_(<, *pcItems) _Out_ DWORD *pdwSelectedItem)
 {
-    HRESULT hr;
-    *pcItems = 0;
-    *pdwSelectedItem = 0;
-
-    // Validate parameters.
-    if (dwFieldID < ARRAYSIZE(_rgCredProvFieldDescriptors) &&
-        (CPFT_COMBOBOX == _rgCredProvFieldDescriptors[dwFieldID].cpft))
-    {
-        *pcItems = ARRAYSIZE(s_rgComboBoxStrings);
-        *pdwSelectedItem = 0;
-        hr = S_OK;
-    }
-    else
-    {
-        hr = E_INVALIDARG;
-    }
-
-    return hr;
+	return NULL;
 }
 
 // Called iteratively to fill the combobox with the string (ppwszItem) at index dwItem.
 //迭代调用以在索引dwItem处用字符串（ppwszItem）填充组合框。
 HRESULT CSampleCredential::GetComboBoxValueAt(DWORD dwFieldID, DWORD dwItem, _Outptr_result_nullonfailure_ PWSTR *ppwszItem)
 {
-    HRESULT hr;
-    *ppwszItem = nullptr;
-
-    // Validate parameters.
-    if (dwFieldID < ARRAYSIZE(_rgCredProvFieldDescriptors) &&
-        (CPFT_COMBOBOX == _rgCredProvFieldDescriptors[dwFieldID].cpft))
-    {
-        hr = SHStrDupW(s_rgComboBoxStrings[dwItem], ppwszItem);
-    }
-    else
-    {
-        hr = E_INVALIDARG;
-    }
-
-    return hr;
+    return NULL;
 }
 
 // Called when the user changes the selected item in the combobox.
 //当用户更改组合框中的选定项时调用。
 HRESULT CSampleCredential::SetComboBoxSelectedValue(DWORD dwFieldID, DWORD dwSelectedItem)
 {
-    HRESULT hr;
-
-    // Validate parameters.
-    if (dwFieldID < ARRAYSIZE(_rgCredProvFieldDescriptors) &&
-        (CPFT_COMBOBOX == _rgCredProvFieldDescriptors[dwFieldID].cpft))
-    {
-        _dwComboIndex = dwSelectedItem;
-        hr = S_OK;
-    }
-    else
-    {
-        hr = E_INVALIDARG;
-    }
-
-    return hr;
+    return NULL;
 }
 
 // Called when the user clicks a command link.
@@ -506,7 +410,7 @@ HRESULT CSampleCredential::CommandLinkClicked(DWORD dwFieldID)
             }
 
             // Pop a messagebox indicating the click.
-            ::MessageBox(hwndOwner, L"Command link clicked", L"Click!", 0);
+            ::MessageBox(hwndOwner, L"帮助信息内容", L"帮助信息标题!", 0);
             break;
         case SFI_HIDECONTROLS_LINK:
             _pCredProvCredentialEvents->BeginFieldUpdates();
@@ -514,10 +418,7 @@ HRESULT CSampleCredential::CommandLinkClicked(DWORD dwFieldID)
             _pCredProvCredentialEvents->SetFieldState(nullptr, SFI_FULLNAME_TEXT, cpfsShow);
             _pCredProvCredentialEvents->SetFieldState(nullptr, SFI_DISPLAYNAME_TEXT, cpfsShow);
             _pCredProvCredentialEvents->SetFieldState(nullptr, SFI_LOGONSTATUS_TEXT, cpfsShow);
-            _pCredProvCredentialEvents->SetFieldState(nullptr, SFI_CHECKBOX, cpfsShow);
-            _pCredProvCredentialEvents->SetFieldState(nullptr, SFI_EDIT_TEXT, cpfsShow);
-            _pCredProvCredentialEvents->SetFieldState(nullptr, SFI_COMBOBOX, cpfsShow);
-            _pCredProvCredentialEvents->SetFieldString(nullptr, SFI_HIDECONTROLS_LINK, _fShowControls? L"Hide additional controls" : L"Show additional controls");
+            _pCredProvCredentialEvents->SetFieldString(nullptr, SFI_HIDECONTROLS_LINK, _fShowControls? L"隐藏其他控制器" : L"显示其他控制器");
             _pCredProvCredentialEvents->EndFieldUpdates();
             _fShowControls = !_fShowControls;
             break;
@@ -662,18 +563,19 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
     return hr;
 }
 
+//报告结果状态信息结构定义
 struct REPORT_RESULT_STATUS_INFO
 {
-    NTSTATUS ntsStatus;
-    NTSTATUS ntsSubstatus;
-    PWSTR     pwzMessage;
-    CREDENTIAL_PROVIDER_STATUS_ICON cpsi;
+    NTSTATUS ntsStatus;//状态
+    NTSTATUS ntsSubstatus;//子状态
+    PWSTR     pwzMessage;//提示信息
+    CREDENTIAL_PROVIDER_STATUS_ICON cpsi;//凭证提供者状态图标
 };
-
+//报告结果状态信息结构数组
 static const REPORT_RESULT_STATUS_INFO s_rgLogonStatusInfo[] =
 {
-    { STATUS_LOGON_FAILURE, STATUS_SUCCESS, L"Incorrect password or username.", CPSI_ERROR, },
-    { STATUS_ACCOUNT_RESTRICTION, STATUS_ACCOUNT_DISABLED, L"The account is disabled.", CPSI_WARNING },
+    { STATUS_LOGON_FAILURE, STATUS_SUCCESS, L"账号或者密码错误.", CPSI_ERROR, },
+    { STATUS_ACCOUNT_RESTRICTION, STATUS_ACCOUNT_DISABLED, L"此账号被禁用.", CPSI_WARNING },
 };
 
 // ReportResult is completely optional.  Its purpose is to allow a credential to customize the string

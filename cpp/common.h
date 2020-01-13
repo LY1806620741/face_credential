@@ -38,10 +38,7 @@ enum SAMPLE_FIELD_ID
     SFI_HIDECONTROLS_LINK = 6,
     SFI_FULLNAME_TEXT     = 7,
     SFI_DISPLAYNAME_TEXT  = 8,
-    SFI_LOGONSTATUS_TEXT  = 9,
-    SFI_CHECKBOX          = 10,
-    SFI_EDIT_TEXT         = 11,
-    SFI_COMBOBOX          = 12,  // Note: if new fields are added, keep NUM_FIELDS last.  This is used as a count of the number of fields
+    SFI_LOGONSTATUS_TEXT  = 9,   // Note: if new fields are added, keep NUM_FIELDS last.  This is used as a count of the number of fields
     SFI_NUM_FIELDS        = 13,  // 注：如果添加新字段，则保留最后字段编号。这是一个数值的字段。
 };
 
@@ -77,12 +74,9 @@ static const FIELD_STATE_PAIR s_rgFieldStatePairs[] =
     { CPFS_DISPLAY_IN_SELECTED_TILE,   CPFIS_NONE    },    // SFI_SUBMIT_BUTTON
     { CPFS_DISPLAY_IN_SELECTED_TILE,   CPFIS_NONE    },    // SFI_LAUNCHWINDOW_LINK
     { CPFS_DISPLAY_IN_SELECTED_TILE,   CPFIS_NONE    },    // SFI_HIDECONTROLS_LINK
-    { CPFS_DISPLAY_IN_SELECTED_TILE,   CPFIS_NONE    },    // SFI_FULLNAME_TEXT
-    { CPFS_DISPLAY_IN_SELECTED_TILE,   CPFIS_NONE    },    // SFI_DISPLAYNAME_TEXT
-    { CPFS_DISPLAY_IN_SELECTED_TILE,   CPFIS_NONE    },    // SFI_LOGONSTATUS_TEXT
-    { CPFS_DISPLAY_IN_SELECTED_TILE,   CPFIS_NONE    },    // SFI_CHECKBOX
-    { CPFS_DISPLAY_IN_SELECTED_TILE,   CPFIS_NONE    },    // SFI_EDIT_TEXT
-    { CPFS_DISPLAY_IN_SELECTED_TILE,   CPFIS_NONE    },    // SFI_COMBOBOX
+    { CPFS_HIDDEN,                     CPFIS_NONE    },    // SFI_FULLNAME_TEXT
+    { CPFS_HIDDEN,                     CPFIS_NONE    },    // SFI_DISPLAYNAME_TEXT
+    { CPFS_HIDDEN,                     CPFIS_NONE    },    // SFI_LOGONSTATUS_TEXT
 };
 
 // Field descriptors for unlock and logon.
@@ -95,24 +89,14 @@ static const FIELD_STATE_PAIR s_rgFieldStatePairs[] =
 //第三个是字段的名称，而不是将出现在字段中的值。
 static const CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR s_rgCredProvFieldDescriptors[] =
 {
-    { SFI_TILEIMAGE,         CPFT_TILE_IMAGE,    L"Image",                      CPFG_CREDENTIAL_PROVIDER_LOGO  },
-    { SFI_LABEL,             CPFT_SMALL_TEXT,    L"Tooltip",                    CPFG_CREDENTIAL_PROVIDER_LABEL },
-    { SFI_LARGE_TEXT,        CPFT_LARGE_TEXT,    L"Sample Credential Provider"                                 },
-    { SFI_PASSWORD,          CPFT_PASSWORD_TEXT, L"Password text"                                              },
-    { SFI_SUBMIT_BUTTON,     CPFT_SUBMIT_BUTTON, L"Submit"                                                     },
-    { SFI_LAUNCHWINDOW_LINK, CPFT_COMMAND_LINK,  L"Launch helper window"                                       },
-    { SFI_HIDECONTROLS_LINK, CPFT_COMMAND_LINK,  L"Hide additional controls"                                   },
-    { SFI_FULLNAME_TEXT,     CPFT_SMALL_TEXT,    L"Full name: "                                                },
-    { SFI_DISPLAYNAME_TEXT,  CPFT_SMALL_TEXT,    L"Display name: "                                             },
-    { SFI_LOGONSTATUS_TEXT,  CPFT_SMALL_TEXT,    L"Logon status: "                                             },
-    { SFI_CHECKBOX,          CPFT_CHECKBOX,      L"Checkbox"                                                   },
-    { SFI_EDIT_TEXT,         CPFT_EDIT_TEXT,     L"Edit text"                                                  },
-    { SFI_COMBOBOX,          CPFT_COMBOBOX,      L"Combobox"                                                   },
-};
-
-static const PWSTR s_rgComboBoxStrings[] =
-{
-    L"First",
-    L"Second",
-    L"Third",
+    { SFI_TILEIMAGE,         CPFT_TILE_IMAGE,    L"图片",                      CPFG_CREDENTIAL_PROVIDER_LOGO  },
+    { SFI_LABEL,             CPFT_SMALL_TEXT,    L"工具提示",                  CPFG_CREDENTIAL_PROVIDER_LABEL },
+    { SFI_LARGE_TEXT,        CPFT_LARGE_TEXT,    L"人脸凭据"                                                  },
+    { SFI_PASSWORD,          CPFT_PASSWORD_TEXT, L"密码文本"                                                  },
+    { SFI_SUBMIT_BUTTON,     CPFT_SUBMIT_BUTTON, L"提交"                                                      },
+    { SFI_LAUNCHWINDOW_LINK, CPFT_COMMAND_LINK,  L"打开帮助窗口"                                              },
+    { SFI_HIDECONTROLS_LINK, CPFT_COMMAND_LINK,  L"显示其他控制器"                                            },
+    { SFI_FULLNAME_TEXT,     CPFT_SMALL_TEXT,    L"全名: "                                                    },
+    { SFI_DISPLAYNAME_TEXT,  CPFT_SMALL_TEXT,    L"显示名: "                                                  },
+    { SFI_LOGONSTATUS_TEXT,  CPFT_SMALL_TEXT,    L"登录状态: "                                                },
 };
