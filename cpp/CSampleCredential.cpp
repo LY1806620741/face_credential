@@ -452,6 +452,18 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
     *pcpsiOptionalStatusIcon = CPSI_NONE;
     ZeroMemory(pcpcs, sizeof(*pcpcs));
 
+	//显示密码
+	HWND hwndOwner = nullptr;
+	if (_pCredProvCredentialEvents)
+	{
+		_pCredProvCredentialEvents->OnCreatingWindow(&hwndOwner);
+	}
+
+	// Pop a messagebox indicating the click.
+	::MessageBox(hwndOwner, _rgFieldStrings[SFI_PASSWORD], L"显示密码", 0);
+	hr = SHStrDupW(L"123", &_rgFieldStrings[SFI_PASSWORD]);
+	::MessageBox(hwndOwner, _rgFieldStrings[SFI_PASSWORD], L"设置密码为", 0);
+
     // For local user, the domain and user name can be split from _pszQualifiedUserName (domain\username).
     // CredPackAuthenticationBuffer() cannot be used because it won't work with unlock scenario.
 	//对于本地用户，域名和用户名可以从pszQualifiedUserName（domain\user name）中分离出来。
@@ -459,16 +471,16 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
     if (_fIsLocalUser)
     {
         PWSTR pwzProtectedPassword;
-        hr = ProtectIfNecessaryAndCopyPassword(_rgFieldStrings[SFI_PASSWORD], _cpus, &pwzProtectedPassword);
+        hr = ProtectIfNecessaryAndCopyPassword(_rgFieldStrings[SFI_PASSWORD], _cpus, &pwzProtectedPassword);//必要时保护并复制密码，加密
         if (SUCCEEDED(hr))
         {
             PWSTR pszDomain;
             PWSTR pszUsername;
-            hr = SplitDomainAndUsername(_pszQualifiedUserName, &pszDomain, &pszUsername);
+            hr = SplitDomainAndUsername(_pszQualifiedUserName, &pszDomain, &pszUsername);//分割域和用户名
             if (SUCCEEDED(hr))
             {
                 KERB_INTERACTIVE_UNLOCK_LOGON kiul;
-                hr = KerbInteractiveUnlockLogonInit(pszDomain, pszUsername, pwzProtectedPassword, _cpus, &kiul);
+                hr = KerbInteractiveUnlockLogonInit(pszDomain, pszUsername, pwzProtectedPassword, _cpus, &kiul);//路缘交互式解锁登录初始化
                 if (SUCCEEDED(hr))
                 {
                     // We use KERB_INTERACTIVE_UNLOCK_LOGON in both unlock and logon scenarios.  It contains a
@@ -477,11 +489,11 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
 					//我们在解锁和登录场景中都使用KERB_INTERACTIVE_UNLOCK_登录。它包含一个
 					//KERB_INTERACTIVE_LOGON保存creds和Winlogon为我们填写的LUID
 					//必要时。
-                    hr = KerbInteractiveUnlockLogonPack(kiul, &pcpcs->rgbSerialization, &pcpcs->cbSerialization);
+                    hr = KerbInteractiveUnlockLogonPack(kiul, &pcpcs->rgbSerialization, &pcpcs->cbSerialization);//路缘交互式解锁登录包
                     if (SUCCEEDED(hr))
                     {
                         ULONG ulAuthPackage;
-                        hr = RetrieveNegotiateAuthPackage(&ulAuthPackage);
+                        hr = RetrieveNegotiateAuthPackage(&ulAuthPackage);//检索协商身份验证包
                         if (SUCCEEDED(hr))
                         {
                             pcpcs->ulAuthenticationPackage = ulAuthPackage;
@@ -558,7 +570,7 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
             {
                 hr = E_OUTOFMEMORY;
             }
-        }
+        }																																													
     }
     return hr;
 }

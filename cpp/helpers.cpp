@@ -392,6 +392,8 @@ static HRESULT _LsaInitString(
 // For more information on auth packages see this msdn page:
 // http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthn/security/msv1_0_lm20_logon.asp
 //
+//从LSA检索“negotiate”身份验证包。在本例中，Kerberos
+//有关身份验证包的详细信息，请参阅此msdn页：
 HRESULT RetrieveNegotiateAuthPackage(_Out_ ULONG *pulAuthPackage)
 {
     HRESULT hr;
@@ -498,6 +500,9 @@ static HRESULT _ProtectAndCopyString(
 //
 // If not, just return a copy.
 //
+//如果pwzPassword应该加密，则返回一个用CredProtect加密的副本。
+//
+//如果没有，就退回一份。
 HRESULT ProtectIfNecessaryAndCopyPassword(
     _In_ PCWSTR pwzPassword,
     _In_ CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
@@ -510,10 +515,14 @@ HRESULT ProtectIfNecessaryAndCopyPassword(
 
     // ProtectAndCopyString is intended for non-empty strings only.  Empty passwords
     // do not need to be encrypted.
+	//ProtectAndCopyString仅适用于非空字符串。空密码
+    //不需要加密。
     if (pwzPassword && *pwzPassword)
     {
         // pwzPassword is const, but CredIsProtected takes a non-const string.
         // So, ake a copy that we know isn't const.
+		//pwzPassword是const，但crediscaptected使用非const字符串。
+        //所以，抄一份我们知道不是常量的。
         PWSTR pwzPasswordCopy;
         hr = SHStrDupW(pwzPassword, &pwzPasswordCopy);
         if (SUCCEEDED(hr))
@@ -524,6 +533,9 @@ HRESULT ProtectIfNecessaryAndCopyPassword(
             // If the password is already encrypted, we should not encrypt it again.
             // An encrypted password may be received through SetSerialization in the
             // CPUS_LOGON scenario during a Terminal Services connection, for instance.
+            //如果密码已经加密，我们不应该再加密它。
+            //加密的密码可以通过
+            //例如，在终端服务连接期间的CPU登录场景。
             if (CredIsProtectedW(pwzPasswordCopy, &protectionType))
             {
                 if (CredUnprotected != protectionType)
@@ -534,6 +546,8 @@ HRESULT ProtectIfNecessaryAndCopyPassword(
 
             // Passwords should not be encrypted in the CPUS_CREDUI scenario.  We
             // cannot know if our caller expects or can handle an encryped password.
+			//在CPU密码方案中不应加密密码。我们
+            //无法知道调用方是否需要或是否可以处理加密密码。
             if (CPUS_CREDUI == cpus || bCredAlreadyEncrypted)
             {
                 hr = SHStrDupW(pwzPasswordCopy, ppwzProtectedPassword);

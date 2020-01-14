@@ -39,7 +39,7 @@ enum SAMPLE_FIELD_ID
     SFI_FULLNAME_TEXT     = 7,
     SFI_DISPLAYNAME_TEXT  = 8,
     SFI_LOGONSTATUS_TEXT  = 9,   // Note: if new fields are added, keep NUM_FIELDS last.  This is used as a count of the number of fields
-    SFI_NUM_FIELDS        = 13,  // 注：如果添加新字段，则保留最后字段编号。这是一个数值的字段。
+    SFI_NUM_FIELDS        = 10,  // 注：如果添加新字段，则保留最后字段编号。这是一个数值的字段。
 };
 
 // The first value indicates when the tile is displayed (selected, not selected)
