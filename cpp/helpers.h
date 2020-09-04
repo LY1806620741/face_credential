@@ -11,6 +11,10 @@
 //用于复制参数和打包缓冲区的帮助函数
 //用于GetSerialization。
 
+//https://gitee.com/welong/VideoRecogLogin/tree/master
+//https://blog.csdn.net/u013435183/article/details/80564963
+//https://docs.microsoft.com/en-us/archive/msdn-magazine/2007/january/custom-login-experiences-credential-providers-in-windows-vista
+
 #pragma once
 
 #pragma warning(push)

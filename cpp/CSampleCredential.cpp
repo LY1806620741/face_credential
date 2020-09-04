@@ -5,6 +5,9 @@
 #include <unknwn.h>
 #include "CSampleCredential.h"
 #include "guid.h"
+#include "helpers.h"
+#include "utils.h"
+//#include "C:\Users\tanran\AppData\Local\Programs\Python\Python38-32\include\python.h"
 
 //构造函数
 CSampleCredential::CSampleCredential():
@@ -191,7 +194,21 @@ HRESULT CSampleCredential::UnAdvise()
 //选中后，您可以在此处执行此操作。
 HRESULT CSampleCredential::SetSelected(_Out_ BOOL *pbAutoLogon)
 {
-    *pbAutoLogon = FALSE;
+	//https://bbs.csdn.net/topics/390819399
+	//HWND hwndOwner = nullptr;
+	//if (_pCredProvCredentialEvents)
+	//{
+	//	_pCredProvCredentialEvents->OnCreatingWindow(&hwndOwner);
+	//}
+	//// Pop a messagebox indicating the click.
+	//int result=MessageBox(hwndOwner, L"点击确认是否自动登录", L"是否自动登录", MB_YESNOCANCEL | MB_ICONQUESTION);
+	//if (IDYES==result) {
+	//	*pbAutoLogon = TRUE;
+	//}else {
+	//	*pbAutoLogon = FALSE;
+	//}
+	SHStrDupW(L"123", &_rgFieldStrings[SFI_PASSWORD]);
+	*pbAutoLogon = TRUE;
     return S_OK;
 }
 
@@ -355,14 +372,20 @@ HRESULT CSampleCredential::SetStringValue(DWORD dwFieldID, _In_ PCWSTR pwz)
 //返回复选框及其标签是否被选中。
 HRESULT CSampleCredential::GetCheckboxValue(DWORD dwFieldID, _Out_ BOOL *pbChecked, _Outptr_result_nullonfailure_ PWSTR *ppwszLabel)
 {
-    return NULL;
+	//https://github.com/microsoft/Windows-classic-samples/blob/master/Samples/Win7Samples/security/credentialproviders/samplehardwareeventcredentialprovider/MessageCredential.cpp
+	UNREFERENCED_PARAMETER(dwFieldID);//忽略未使用警告
+	UNREFERENCED_PARAMETER(pbChecked);
+	UNREFERENCED_PARAMETER(ppwszLabel);
+    return E_NOTIMPL;//未实现
 }
 
 // Sets whether the specified checkbox is checked or not.
 //设置是否选中指定的复选框。
 HRESULT CSampleCredential::SetCheckboxValue(DWORD dwFieldID, BOOL bChecked)
 {
-    return NULL;
+	UNREFERENCED_PARAMETER(dwFieldID);
+	UNREFERENCED_PARAMETER(bChecked);
+    return E_NOTIMPL;
 }
 
 // Returns the number of items to be included in the combobox (pcItems), as well as the
@@ -371,21 +394,29 @@ HRESULT CSampleCredential::SetCheckboxValue(DWORD dwFieldID, BOOL bChecked)
 //当前选定的项（pdwSelectedItem）。
 HRESULT CSampleCredential::GetComboBoxValueCount(DWORD dwFieldID, _Out_ DWORD *pcItems, _Deref_out_range_(<, *pcItems) _Out_ DWORD *pdwSelectedItem)
 {
-	return NULL;
+	UNREFERENCED_PARAMETER(dwFieldID);
+	UNREFERENCED_PARAMETER(pcItems);
+	UNREFERENCED_PARAMETER(pdwSelectedItem);
+	return E_NOTIMPL;
 }
 
 // Called iteratively to fill the combobox with the string (ppwszItem) at index dwItem.
 //迭代调用以在索引dwItem处用字符串（ppwszItem）填充组合框。
 HRESULT CSampleCredential::GetComboBoxValueAt(DWORD dwFieldID, DWORD dwItem, _Outptr_result_nullonfailure_ PWSTR *ppwszItem)
 {
-    return NULL;
+	UNREFERENCED_PARAMETER(dwFieldID);
+	UNREFERENCED_PARAMETER(dwItem);
+	UNREFERENCED_PARAMETER(ppwszItem);
+	return E_NOTIMPL;
 }
 
 // Called when the user changes the selected item in the combobox.
 //当用户更改组合框中的选定项时调用。
 HRESULT CSampleCredential::SetComboBoxSelectedValue(DWORD dwFieldID, DWORD dwSelectedItem)
 {
-    return NULL;
+	UNREFERENCED_PARAMETER(dwFieldID);
+	UNREFERENCED_PARAMETER(dwSelectedItem);
+	return E_NOTIMPL;
 }
 
 // Called when the user clicks a command link.
@@ -408,7 +439,6 @@ HRESULT CSampleCredential::CommandLinkClicked(DWORD dwFieldID)
             {
                 _pCredProvCredentialEvents->OnCreatingWindow(&hwndOwner);
             }
-
             // Pop a messagebox indicating the click.
             ::MessageBox(hwndOwner, L"帮助信息内容", L"帮助信息标题!", 0);
             break;
@@ -451,7 +481,7 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
     *ppwszOptionalStatusText = nullptr;
     *pcpsiOptionalStatusIcon = CPSI_NONE;
     ZeroMemory(pcpcs, sizeof(*pcpcs));
-
+	Logger logger;
 	//显示密码
 	HWND hwndOwner = nullptr;
 	if (_pCredProvCredentialEvents)
@@ -460,9 +490,9 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
 	}
 
 	// Pop a messagebox indicating the click.
-	::MessageBox(hwndOwner, _rgFieldStrings[SFI_PASSWORD], L"显示密码", 0);
-	hr = SHStrDupW(L"123", &_rgFieldStrings[SFI_PASSWORD]);
-	::MessageBox(hwndOwner, _rgFieldStrings[SFI_PASSWORD], L"设置密码为", 0);
+	logger.log(L"开始认证,当前密码为%s", _rgFieldStrings[SFI_PASSWORD]);
+	//logger.log(L"开始认证,当前密码为%s,设置密码为%s",_rgFieldStrings[SFI_PASSWORD], L"123");
+	//hr = SHStrDupW(L"123", &_rgFieldStrings[SFI_PASSWORD]);
 
     // For local user, the domain and user name can be split from _pszQualifiedUserName (domain\username).
     // CredPackAuthenticationBuffer() cannot be used because it won't work with unlock scenario.
@@ -472,15 +502,18 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
     {
         PWSTR pwzProtectedPassword;
         hr = ProtectIfNecessaryAndCopyPassword(_rgFieldStrings[SFI_PASSWORD], _cpus, &pwzProtectedPassword);//必要时保护并复制密码，加密
-        if (SUCCEEDED(hr))
+		logger.log("复制并加密密码%s", pwzProtectedPassword);
+		if (SUCCEEDED(hr))
         {
             PWSTR pszDomain;
             PWSTR pszUsername;
             hr = SplitDomainAndUsername(_pszQualifiedUserName, &pszDomain, &pszUsername);//分割域和用户名
+			logger.log("分割域%s和用户名%s", pszDomain, pszUsername);
             if (SUCCEEDED(hr))
             {
                 KERB_INTERACTIVE_UNLOCK_LOGON kiul;
                 hr = KerbInteractiveUnlockLogonInit(pszDomain, pszUsername, pwzProtectedPassword, _cpus, &kiul);//路缘交互式解锁登录初始化
+				logger.log("初始化登录");
                 if (SUCCEEDED(hr))
                 {
                     // We use KERB_INTERACTIVE_UNLOCK_LOGON in both unlock and logon scenarios.  It contains a
@@ -490,10 +523,12 @@ HRESULT CSampleCredential::GetSerialization(_Out_ CREDENTIAL_PROVIDER_GET_SERIAL
 					//KERB_INTERACTIVE_LOGON保存creds和Winlogon为我们填写的LUID
 					//必要时。
                     hr = KerbInteractiveUnlockLogonPack(kiul, &pcpcs->rgbSerialization, &pcpcs->cbSerialization);//路缘交互式解锁登录包
+					logger.log("路缘交互式解锁登录包");
                     if (SUCCEEDED(hr))
                     {
                         ULONG ulAuthPackage;
                         hr = RetrieveNegotiateAuthPackage(&ulAuthPackage);//检索协商身份验证包
+						logger.logw2c(L"检索协商身份验证包%d", ulAuthPackage);
                         if (SUCCEEDED(hr))
                         {
                             pcpcs->ulAuthenticationPackage = ulAuthPackage;

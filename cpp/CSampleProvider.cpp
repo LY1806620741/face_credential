@@ -14,6 +14,7 @@
 //logonUI用来决定要显示哪些平铺的接口。
 //在这个示例中，我们将显示一个磁贴，它使用九个磁贴中的每一个
 //可用的用户界面控件。
+//https://cloud.tencent.com/developer/article/1564940
 
 #include <initguid.h>
 #include "CSampleProvider.h"
@@ -60,6 +61,7 @@ HRESULT CSampleProvider::SetUsageScenario(
 	//我们不是为那个场景而设计的。
     switch (cpus)
     {
+	//开机登陆和锁屏登录
     case CPUS_LOGON:
     case CPUS_UNLOCK_WORKSTATION:
         // The reason why we need _fRecreateEnumeratedCredentials is because ICredentialProviderSetUserArray::SetUserArray() is called after ICredentialProvider::SetUsageScenario(),
